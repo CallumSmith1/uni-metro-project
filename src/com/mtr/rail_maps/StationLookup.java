@@ -19,13 +19,17 @@ public class StationLookup implements Controller {
 	// Move this out because the station object is null
 	public Set<StationType> stationTraversal(String stationName) {
 		
-		
-		
-		
 		Set<StationType> visited = new LinkedHashSet<StationType>();
 		Queue<StationType> queue = new LinkedList<StationType>();
-		//queue.add(stationRoot);
-		//visited.add(stationRoot);
+		try { 
+		queue.add(map.returnStationFromName(stationName).getStation());
+		visited.add(map.returnStationFromName(stationName).getStation());
+		}
+		catch(NullPointerException npe) { 
+			System.out.println("Cannot find: " + stationName + ", please enter a valid Hong Kong station. Refer to a station map for assistance");
+			return null;
+		}
+		
 		while (!queue.isEmpty() && map != null) {
 			StationType vertex = queue.poll();
 			// System.out.println(graph.getAdjacentNodes(vertex).toString());
@@ -39,14 +43,19 @@ public class StationLookup implements Controller {
 
 			}
 		}
-
 		return visited;
 	}
 
 	@Override
 	public String lookupStation(String station) {
-		// TODO Auto-generated method stub
-		return null;
+		if (station != null) { 
+			return stationTraversal(station.trim().toLowerCase()).stream()
+			.filter(e -> e.getStationName().equals(station.trim().toLowerCase()))
+			.findFirst().toString().replaceAll("Optional", "");
+			
+		}
+			return "Please make sure you have entered a station and try again";
+		
 	}
 
 	@Override

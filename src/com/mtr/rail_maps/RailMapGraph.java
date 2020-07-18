@@ -82,9 +82,13 @@ public class RailMapGraph {
 
 		if (adjacentNodes.get(edgeA) != null) {
 			adjacentNodes.get(edgeA).add(edgeB);
+			// System.out.println(edgeA.getStation().getStationName() + " is connected to "
+			// + edgeB.getStation().getStationName());
 		}
 		if (adjacentNodes.get(edgeB) != null) {
 			adjacentNodes.get(edgeB).add(edgeA);
+			// System.out.println(edgeB.getStation().getStationName() + " is connected to "
+			// + edgeA.getStation().getStationName());
 		}
 	}
 
@@ -105,18 +109,18 @@ public class RailMapGraph {
 		return null;
 	}
 
-	//Takes a string, the station's name, and returns an object or null if it does not exist
+	// Takes a string, the station's name, and returns an object or null if it does
+	// not exist
 	public StationNodes returnStationFromName(String stationName) {
 		return adjacentNodes.entrySet().stream()
-			   .filter(a -> a.getKey().getStation().getStationName().equals(stationName))
-			   .map(Map.Entry::getKey)
-			   .findFirst()
-			   .orElse(null);
+				.filter(a -> a.getKey().getStation().getStationName().equals(stationName)).map(Map.Entry::getKey)
+				.findFirst().orElse(null);
 
 	}
 
+	// For checking if a passed station is already in the graph
 	public boolean checkIfDuplicateStation(StationType station) {
-		StationNodes stationChecker = new StationNodes(station);
+		// StationNodes stationChecker = new StationNodes(station);
 		String stationName = station.getStationName();
 		// This is checking if the station name already exists in the key set
 		boolean stationExists = adjacentNodes.entrySet().stream()

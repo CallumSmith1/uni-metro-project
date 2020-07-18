@@ -21,8 +21,7 @@ public class FillOut {
 		MapCreator mr = new MapCreator("files/MTR_CitySaverNetwork.csv");
 		RailMapGraph graph = new RailMapGraph(); 
 		StationLookup lookup = new StationLookup(mr.createMap());
-		lookup.stationTraversal("Fortress Hill");
-		//graph.stationTraversal(mr.getRailMap(), new TrainStation("Hey", "hi"));
+		lookup.stationTraversal("East Tsim Sha Tsui");
 		
 		assertTrue(true);
 	}
