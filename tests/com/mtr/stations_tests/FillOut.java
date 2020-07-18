@@ -5,6 +5,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import com.mtr.rail_maps.MapCreator;
+import com.mtr.rail_maps.RailMapGraph;
+import com.mtr.rail_maps.StationLookup;
+import com.mtr.stations.TrainStation;
 import com.mtr.utilities.Tokenizer;
 
 /* Used to test the implementation of the Map Creator class.
@@ -16,7 +19,11 @@ public class FillOut {
 	@Test
 	void trueTest() {
 		MapCreator mr = new MapCreator("files/MTR_CitySaverNetwork.csv");
-		mr.createMap();
+		RailMapGraph graph = new RailMapGraph(); 
+		StationLookup lookup = new StationLookup(mr.createMap());
+		lookup.stationTraversal("Fortress Hill");
+		//graph.stationTraversal(mr.getRailMap(), new TrainStation("Hey", "hi"));
+		
 		assertTrue(true);
 	}
-}
+} 

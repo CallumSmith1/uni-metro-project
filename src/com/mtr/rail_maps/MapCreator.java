@@ -5,7 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +27,8 @@ public class MapCreator implements ContainsChecker {
 
 	private String mapFileLocation;
 	private int numberOfLines = 0;
+	
+	private boolean lastStationWasDuplicate;
 
 	private RailMapGraph graph = new RailMapGraph();;
 
@@ -40,6 +46,8 @@ public class MapCreator implements ContainsChecker {
 		try {
 			graph.createNewMap();
 			readLinesFromMap();
+			//System.out.println(graph.getMap().entrySet());
+			
 		} catch (FileNotFoundException fnfe) {
 			System.out.println(fnfe.getMessage());
 		} catch (IOException ioe) {
@@ -47,6 +55,12 @@ public class MapCreator implements ContainsChecker {
 		}
 		return graph;
 	}
+	
+	
+	public RailMapGraph getRailMap() { 
+		return graph;
+	}
+	
 
 	/*
 	 * Reads the file passed to the constructor and splits it based on the pattern
@@ -83,6 +97,7 @@ public class MapCreator implements ContainsChecker {
 	}
 
 	private void createStations(String lineName, String[] stationTokens) {
+		//This lets me link the last station to the current one 
 		StationType lastStation = null;
 		int numStations = stationTokens.length;
 
@@ -99,11 +114,16 @@ public class MapCreator implements ContainsChecker {
 				graph.addStationConnection(lastStation, stationType);
 			}
 			
+			
+			//graph.getAdjacentNodes(stationType);
+			//StationLookup.stationTraversal(graph, stationType);
 			graph.addStation(stationType);
+			graph.getAdjacentNodes(graph.getMap(), stationType);
 			lastStation = stationType;
 		}
 	}
 
+	//Creates a station object of either paid area, unpaid area, or generic station 
 	private StationType buildStationObject(String lineName, String token) {
 		StationType stationType;
 		if (doesContain(lineName.toLowerCase(), "paid connection")) {
@@ -114,6 +134,11 @@ public class MapCreator implements ContainsChecker {
 			stationType = new PaidArea(token, lineName);
 		}
 		return stationType;
+	}
+	
+	private void handleDuplicateStations(StationType currentStation, StationType previousStation) { 
+		
+		graph.checkIfDuplicateStation(currentStation);
 	}
 
 	@Override
