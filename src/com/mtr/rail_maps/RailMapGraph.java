@@ -2,13 +2,8 @@ package com.mtr.rail_maps;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
 
 import com.mtr.stations.StationType;
 
@@ -34,6 +29,9 @@ public class RailMapGraph {
 	// set the key to be a string representation of the station
 	private Map<StationNodes, List<StationNodes>> adjacentNodes;
 	private RailMapGraph railMap;
+	
+	//Keeps track of how many stations are in the graph
+	private int numberOfStations;
 
 	public RailMapGraph() {
 		// I might want to use a set for this??
@@ -66,9 +64,14 @@ public class RailMapGraph {
 	public Map<StationNodes, List<StationNodes>> getMap() {
 		return adjacentNodes;
 	}
+	
+	public int getNumberOfStations() { 
+		return numberOfStations;
+	}
 
 	public void addStation(StationType station) {
 		adjacentNodes.putIfAbsent(new StationNodes(station), new ArrayList<>());
+		numberOfStations++;
 	}
 
 	/**

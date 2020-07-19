@@ -28,9 +28,29 @@ public abstract class StationType {
 		makeJourney();
 	}
 
-	public void showStationLines() {
-		System.out.println(this.allLines.toString());
+	public String returnStationLines() {
+		String stationLines = "Is a station on the following lines: ";
+		for (String line : allLines) { 
+			stationLines += line.trim() + ", ";
+		}
+		stationLines = stationLines.replaceAll(", $", "");
+		return stationLines;
 	}
+	
+	public String returnStationTerminuses() {
+		String stationTerminuses = "Is a station on the following lines: ";
+		for (String terminus : isTerminusOnLine) { 
+			stationTerminuses += terminus.trim() + ", ";
+		}
+		if(stationTerminuses.equals("Is a station on the following lines: ")) { 
+			stationTerminuses = "This station is not a terminus on any line";
+		}
+		stationTerminuses = stationTerminuses.replaceAll(", $", "");
+		return stationTerminuses;
+	}
+	
+	
+	
 	
 	public void addNewLine(String line) { 
 		allLines.add(line);

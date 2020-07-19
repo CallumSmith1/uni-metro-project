@@ -27,7 +27,6 @@ import com.mtr.utilities.Tokenizer;
 public class MapCreator implements ContainsChecker {
 
 	private String mapFileLocation;
-	private int numberOfLines = 0;
 	private boolean added = false;
 
 	private boolean lastStationWasDuplicate = false;
@@ -69,7 +68,6 @@ public class MapCreator implements ContainsChecker {
 		List<String[]> fileLines = frc.readFileLinesOfCsv();
 		for (String[] railLine : fileLines) {
 			splitStations(railLine);
-			numberOfLines++;
 		}
 	}
 
@@ -167,18 +165,17 @@ public class MapCreator implements ContainsChecker {
 		return stationType;
 	}
 
-	private void handleDuplicateStations(StationType currentStation, StationType previousStation) {
-		// if the current graph is a duplicate but the last was not, link the last to
-		// the initial instance
-		if (graph.checkIfDuplicateStation(currentStation)) {
-			graph.addStationConnection(previousStation,
-					graph.returnStationFromName(currentStation.getStationName()).getStation());
-			added = true;
-		} else {
-			graph.addStation(currentStation);
-		}
-
-	}
+	/*
+	 * private void handleDuplicateStations(StationType currentStation, StationType
+	 * previousStation) { // if the current graph is a duplicate but the last was
+	 * not, link the last to // the initial instance if
+	 * (graph.checkIfDuplicateStation(currentStation)) {
+	 * graph.addStationConnection(previousStation,
+	 * graph.returnStationFromName(currentStation.getStationName()).getStation());
+	 * added = true; } else { graph.addStation(currentStation); }
+	 * 
+	 * }
+	 */
 
 	@Override
 	public boolean doesContain(String stringToCheck, String valueToCheckFor) {
