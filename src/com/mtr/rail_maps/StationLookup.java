@@ -1,8 +1,11 @@
 package com.mtr.rail_maps;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -13,91 +16,86 @@ import com.mtr.stations.StationType;
 public class StationLookup implements Controller {
 
 	private RailMapGraph map;
-	
+
 	public StationLookup(RailMapGraph map) {
 		this.map = map;
 	}
 
 	/*
-	 * public void stationTraversal(String originStation, String destinationStation)
-	 * { //public Set<StationType> stationTraversal(String originStation, String
-	 * destinationStation) { Set<StationType> visited = new
-	 * LinkedHashSet<StationType>(); Queue<StationType> queue = new
-	 * LinkedList<StationType>();
-	 * 
-	 * Map<StationType, StationType> associatedNodes = new HashMap<StationType,
-	 * StationType>(); boolean isShortestPath = false;
-	 * 
-	 * try { queue.add(map.returnStationFromName(originStation).getStation());
-	 * visited.add(map.returnStationFromName(originStation).getStation()); } catch
-	 * (NullPointerException npe) { System.out.println("Cannot find: " +
-	 * originStation +
-	 * ", please enter a valid Hong Kong station. Refer to a station map for assistance"
-	 * ); //return null; }
-	 * 
-	 * while (!queue.isEmpty() && map != null) { StationType nextStation =
-	 * queue.peek();
-	 * 
-	 * if(nextStation.getStationName().equals(destinationStation)) { isShortestPath
-	 * = true; break; }
-	 * 
-	 * visited.add(nextStation);
-	 * 
-	 * // System.out.println(graph.getAdjacentNodes(vertex).toString()); if
-	 * (map.getAdjacentNodes(map.getMap(), vertex) != null) { for (StationNodes node
-	 * : map.getAdjacentNodes(map.getMap(), vertex)) { if
-	 * (!visited.contains(node.getStation())) { visited.add(node.getStation());
-	 * queue.add(node.getStation()); } }
-	 * 
-	 * } } //return visited; }
+	 * This is a Breadth First Search method to find the shortest path between
+	 * stations. I will not look for the cheapest option, but the
+	 * StationType.startNewJourney() method will keep a track of how many tickets
+	 * will be used for the journey in question
 	 */
-	
-	
-	
-	public void stationTraversal(String originStation, String destinationStation) {
-	//I am using a set for visited because it cannot contain duplicates and is generally O(n)
-		Set<StationType > visited = new LinkedHashSet<StationType >();
-		Queue<StationType > queue = new LinkedList<StationType >();
-		Map<StationType , StationType > previous = new HashMap<StationType , StationType >();
-		
-		StationType currentNode = map.returnStationFromName(originStation).getStation();
-		
+	public List<String> stationTraversal(String originStation, String destinationStation) {
+		// I am using a set for visited because it cannot contain duplicates and is
+		// generally O(n)
+		Set<StationType> visited = new LinkedHashSet<StationType>();
+		Queue<StationType> queue = new LinkedList<StationType>();
+		Map<StationType, StationType> previous = new HashMap<StationType, StationType>();
+		List<String> stationsToDestination = new ArrayList<String>();
+
+		StationType currentNode = null;
+		StationType destination = null;
+
+		/*
+		 * This is checking the user values to make sure that they exist and are not
+		 * null
+		 */
 		try {
-			queue.add(currentNode);
-			visited.add(currentNode);
-		} catch (NullPointerException npe) {
-			System.out.println("Cannot find: " + originStation
-					+ ", please enter a valid Hong Kong station. Refer to a station map for assistance");
-			//return null;
+			currentNode = handleStationCheck(originStation);
+		} catch (IllegalArgumentException iae) {
+			System.out.println(iae.getMessage());
+			return null;
+		}
+		try {
+			destination = handleStationCheck(destinationStation);
+		} catch (IllegalArgumentException iae) {
+			System.out.println(iae.getMessage());
+			return null;
 		}
 
+		queue.add(currentNode);
+		visited.add(currentNode);
 		while (!queue.isEmpty() && map != null) {
 			currentNode = queue.poll();
-			
-			if(currentNode.getStationName().equals(destinationStation)) { 
+
+			if (currentNode.getStationName().equals(destinationStation)) {
 				break;
-			}
-			
-			else { 
-				
-				//When a junction is reached, the queue will be set to an empty value
-				
-				for(StationNodes node : map.getAdjacentNodes(map.getMap(), currentNode)) {
-					if(!visited.contains(node.getStation())) { 
+			} else {
+
+				for (StationNodes node : map.getAdjacentNodes(map.getMap(), currentNode)) {
+					if (!visited.contains(node.getStation())) {
 						queue.add(node.getStation());
 						visited.add(node.getStation());
 						previous.put(node.getStation(), currentNode);
 					}
 				}
 			}
-			/*
-			 * if(!currentNode.getStationName().equals(destinationStation)) {
-			 * System.out.printf("%nWas unable to reach %s from %s%n", destinationStation,
-			 * originStation); }
-			 */
+		}
+		for (StationType dest = destination; dest != null; dest = previous.get(dest)) {
+			stationsToDestination.add(dest.getStationName());
+		}
+		return stationsToDestination;
+	}
+
+	/*
+	 * Drawing this out of the BFS method to make for easier debugging. Having these
+	 * will drag the method over 30 lines
+	 */
+	private StationType handleStationCheck(String stationToCheck) {
+		if (stationToCheck == null || stationToCheck.replaceAll(" ", "").equals("")) {
+			throw new IllegalArgumentException(
+					"The station name cannot be blank, please input a valid station and try again. Please refer to a station Map for assistance");
+		} else {
+			try {
+				return map.returnStationFromName(stationToCheck).getStation();
+			} catch (NullPointerException npe) {
+				throw new IllegalArgumentException("Cannot find: " + stationToCheck
+						+ ", please enter a valid Hong Kong station. Refer to a station map for assistance");
+			}
 		}
 	}
-	
 
 	// For this I do not need to use any sort of BFS implementation, because I can
 	// reuse the returnStationFrom name function to get and examine the station
@@ -105,18 +103,13 @@ public class StationLookup implements Controller {
 	@Override
 	public String lookupStation(String station) {
 		station = station.trim().toLowerCase();
-		
-		
-		/*
-		 * List<StationNodes> test = map.getAdjacentNodes(map.getMap(),
-		 * map.returnStationFromName(station).getStation());
-		 * System.out.println(test.toString());
-		 */
-		//check if the station name is "" or null, and if not, return the object details as a formatted string
+
+		// check if the station name is "" or null, and if not, return the object
+		// details as a formatted string
 		try {
 			if (station != null && !station.replaceAll(" ", "").equals("")) {
 				StationType targetStation = map.returnStationFromName(station).getStation();
-				String stationDetails = "Station: " + targetStation.getStationName() + System.lineSeparator()
+				String stationDetails = System.lineSeparator() + "Station: " + targetStation.getStationName() + System.lineSeparator()
 						+ targetStation.returnStationLines() + System.lineSeparator()
 						+ targetStation.returnStationTerminuses() + System.lineSeparator();
 				return stationDetails;
@@ -127,15 +120,30 @@ public class StationLookup implements Controller {
 		return "Please enter a station name and try again";
 	}
 
-	
-	
 	@Override
 	public String showPathBetween(String stationA, String stationB) {
 		stationA = stationA.trim().toLowerCase();
 		stationB = stationB.trim().toLowerCase();
-		
-		stationTraversal(stationA, stationB);
-		return null;
+
+		/*
+		 * Start the BFS method and return a list of Strings. I am making a new variable
+		 * on purpose so that it is easier to read in the string processing
+		 */
+		List<String> fastestPathList = stationTraversal(stationA, stationB);
+		//I am reversing the string because they will be added in the order of last -> first
+		Collections.reverse(fastestPathList);
+		String formattedString = System.lineSeparator() + "The quickest route from " + stationA + " to " + stationB + " is to follow: ";
+		// I am using the if statement because I will return null from null pointers in the BFS
+		if (fastestPathList == null) {
+			formattedString = "";
+		} else {
+			// Format the return string
+			for (String station : fastestPathList) {
+				formattedString += System.lineSeparator() + "* " +  station;
+			}
+		}
+
+		return formattedString;
 	}
 
 }

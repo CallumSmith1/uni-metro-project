@@ -1,7 +1,5 @@
 package com.mtr.stations;
 
-import com.mtr.user_interaction.UserInfo;
-
 public class TrainStation extends StationType {
 	
 
@@ -9,9 +7,8 @@ public class TrainStation extends StationType {
 		super(stationName, lineName);
 	}
 
-	@Override
-	protected void makeJourney() {
-		UserInfo.deductJourney();
-		System.out.printf("You have %d journeys remaining", UserInfo.getSeasonTicketInfo());
-	}
+	/*
+	 * @Override protected void makeJourney() { if(doesContain(lineName,
+	 * "Paid Connection")) { //Do nothing } else { UserInfo.deductJourney(); } }
+	 */
 }

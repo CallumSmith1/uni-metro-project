@@ -26,20 +26,22 @@ import com.mtr.stations.StationType;
  */
 public class RailMapGraph {
 
-	// set the key to be a string representation of the station
+	//set the key to be a string representation of the station
 	private Map<StationNodes, List<StationNodes>> adjacentNodes;
 	private RailMapGraph railMap;
 	
 	//Keeps track of how many stations are in the graph
-	private int numberOfStations;
 
 	public RailMapGraph() {
-		// I might want to use a set for this??
+		/*
+		 * Create a HashMap of the station nodes. Each node will have a list of the
+		 * stations that it connects to
+		 */
 		this.adjacentNodes = new HashMap<StationNodes, List<StationNodes>>();
 	}
 
 	/*
-	 * Create singleton so that we don't have more than one subway roaming around
+	 * Create singleton so that we don't have more than one subway loose and roaming around
 	 * the code
 	 * 
 	 */
@@ -61,17 +63,15 @@ public class RailMapGraph {
 		}
 	}
 
+	//Return the adjacent vertices (The graph)
 	public Map<StationNodes, List<StationNodes>> getMap() {
 		return adjacentNodes;
 	}
 	
-	public int getNumberOfStations() { 
-		return numberOfStations;
-	}
 
 	public void addStation(StationType station) {
 		adjacentNodes.putIfAbsent(new StationNodes(station), new ArrayList<>());
-		numberOfStations++;
+		//Maybe add a field to track the number of vertices 
 	}
 
 	/**
@@ -85,33 +85,25 @@ public class RailMapGraph {
 
 		if (adjacentNodes.get(edgeA) != null) {
 			adjacentNodes.get(edgeA).add(edgeB);
-			/*
-			 * System.out.println(edgeA.getStation().getStationName() + " is connected to "
-			 * + edgeB.getStation().getStationName());
-			 */
 		}
 		if (adjacentNodes.get(edgeB) != null) {
 			adjacentNodes.get(edgeB).add(edgeA);
-			/*
-			 * System.out.println(edgeB.getStation().getStationName() + " is connected to "
-			 * + edgeA.getStation().getStationName());
-			 */
 		}
 	}
 	
+	/*
+	 * Method for helping debug the dropped edges bug. Same as "addStationConnection"
+	 * remove when possible
+	 */
 	public void addExistingStationConnection(StationNodes duplicateStation, StationType lastStation) {
 		
 		StationNodes edgeA = new StationNodes(lastStation);
 
 		if (adjacentNodes.get(duplicateStation) != null) {
 			adjacentNodes.get(duplicateStation).add(edgeA);
-			//System.out.println(adjacentNodes.get(duplicateStation));
-			//System.out.println(duplicateStation.getStation().getStationName() + " is now connected to " + lastStation.getStation().getStationName());
 		}
 		if (adjacentNodes.get(edgeA) != null) {
 			adjacentNodes.get(edgeA).add(duplicateStation);
-			//System.out.println(adjacentNodes.get(edgeA));
-			//System.out.println(lastStation.getStation().getStationName() + " is now connected to " + duplicateStation.getStation().getStationName());
 		}
 
 	}
