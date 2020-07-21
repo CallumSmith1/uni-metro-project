@@ -15,6 +15,10 @@ public class StationNodes {
 	public StationType getStation() { 
 		return station;
 	}
+	
+	public String toString() { 
+		return station.getStationName();
+	}
 
 	@Override
 	public int hashCode() {

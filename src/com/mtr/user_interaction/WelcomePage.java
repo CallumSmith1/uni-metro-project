@@ -9,7 +9,8 @@ public class WelcomePage {
 		UserInfo.resetSeasonTicket();
 		
 		MapCreator createMap = new MapCreator("files/MTR_CitySaverNetwork.csv");
-		StationLookup controller = new StationLookup(createMap.createMap());
+		createMap.createMap();
+		StationLookup controller = new StationLookup(createMap.getRailMap());
 		
 		TUI ui = new TUI(controller);
 	}

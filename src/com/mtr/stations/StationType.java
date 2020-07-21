@@ -11,7 +11,7 @@ public abstract class StationType {
 	protected String stationName;
 
 	// Boolean value to check whether the station is a terminal of the line
-	protected boolean isTerminus = false;;
+	protected List<String> isTerminusOnLine = new ArrayList<String>();
 
 	public StationType(String stationName, String lineName) {
 		this.stationName = stationName;
@@ -28,18 +28,37 @@ public abstract class StationType {
 		makeJourney();
 	}
 
-	public void showStationLines() {
-		System.out.println(this.allLines.toString());
-	}
-
-	public void checkIfIsTerminus() {
-		if (isTerminus) {
-			System.out.printf("%s is a terminus of %n", stationName);
+	public String returnStationLines() {
+		String stationLines = "Is a station on the following lines: ";
+		for (String line : allLines) { 
+			stationLines += line.trim() + ", ";
 		}
+		stationLines = stationLines.replaceAll(", $", "");
+		return stationLines;
 	}
 	
-	public void setAsTerminus() {
-		isTerminus = true;
+	public String returnStationTerminuses() {
+		String stationTerminuses = "Is a station on the following lines: ";
+		for (String terminus : isTerminusOnLine) { 
+			stationTerminuses += terminus.trim() + ", ";
+		}
+		if(stationTerminuses.equals("Is a station on the following lines: ")) { 
+			stationTerminuses = "This station is not a terminus on any line";
+		}
+		stationTerminuses = stationTerminuses.replaceAll(", $", "");
+		return stationTerminuses;
+	}
+	
+	
+	
+	
+	public void addNewLine(String line) { 
+		allLines.add(line);
+	}
+
+	
+	public void setAsTerminus(String lineName) {
+		isTerminusOnLine.add(lineName);
 	}
 
 	public String getStationName() {
@@ -48,10 +67,18 @@ public abstract class StationType {
 	
 	@Override
 	public String toString() {
-		return "Current Line: " + lineName + System.lineSeparator() + 
-				"Lines: " + allLines.toString() + System.lineSeparator() + 
-				"Station: " + stationName + System.lineSeparator() + 
-				"Is Terminus: " + isTerminus;
+		String allLines = "";
+		String terminusLines = "";
+		for(String s : this.allLines) { 
+			allLines += s + " | ";
+		}
+		for(String s : this.isTerminusOnLine) { 
+			terminusLines += s + " | ";
+		}
+		
+		return "Lines: " + allLines + System.lineSeparator() + 
+			   "Station: " + stationName + System.lineSeparator() + 
+			   "Is Terminus on: " + terminusLines;
 	}
 
 	// I am overriding the equals and hashcode since these are immutable objects
@@ -60,7 +87,8 @@ public abstract class StationType {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((allLines == null) ? 0 : allLines.hashCode());
-		result = prime * result + (isTerminus ? 1231 : 1237);
+		result = prime * result + ((isTerminusOnLine == null) ? 0 : isTerminusOnLine.hashCode());
+		result = prime * result + ((lineName == null) ? 0 : lineName.hashCode());
 		result = prime * result + ((stationName == null) ? 0 : stationName.hashCode());
 		return result;
 	}
@@ -79,7 +107,15 @@ public abstract class StationType {
 				return false;
 		} else if (!allLines.equals(other.allLines))
 			return false;
-		if (isTerminus != other.isTerminus)
+		if (isTerminusOnLine == null) {
+			if (other.isTerminusOnLine != null)
+				return false;
+		} else if (!isTerminusOnLine.equals(other.isTerminusOnLine))
+			return false;
+		if (lineName == null) {
+			if (other.lineName != null)
+				return false;
+		} else if (!lineName.equals(other.lineName))
 			return false;
 		if (stationName == null) {
 			if (other.stationName != null)
@@ -88,4 +124,6 @@ public abstract class StationType {
 			return false;
 		return true;
 	}
+
+
 }
