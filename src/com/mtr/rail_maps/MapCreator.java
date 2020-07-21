@@ -144,7 +144,11 @@ public class MapCreator implements ContainsChecker {
 	private StationType duplicateStation(String lineName, StationType lastStation, int numStations, int i,
 			String token) {
 		StationType station = graph.returnStationFromName(token).getStation();
-		graph.addStationConnection(lastStation, station);
+		
+		if(lastStation != null) { 
+		graph.addExistingStationConnection(graph.returnStationFromName(station.getStationName()), graph.returnStationFromName(lastStation.getStationName()));
+		
+		}
 		if(i == 0 || i == numStations - 1) { 
 			station.setAsTerminus(lineName);
 		}

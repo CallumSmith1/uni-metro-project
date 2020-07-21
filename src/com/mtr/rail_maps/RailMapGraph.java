@@ -94,13 +94,26 @@ public class RailMapGraph {
 			// + edgeA.getStation().getStationName());
 		}
 	}
+	
+	public void addExistingStationConnection(StationNodes duplicateStation, StationNodes lastStation) {
+
+		if (adjacentNodes.get(duplicateStation) != null) {
+			adjacentNodes.get(duplicateStation).add(lastStation);
+			//System.out.println(duplicateStation.getStation().getStationName() + " is now connected to " + lastStation.getStation().getStationName());
+		}
+		if (adjacentNodes.get(lastStation) != null) {
+			adjacentNodes.get(lastStation).add(duplicateStation);
+			//System.out.println(lastStation.getStation().getStationName() + " is now connected to " + duplicateStation.getStation().getStationName());
+		}
+	}
 
 	/*
 	 * Return the nodes adjacent to the one that is passed to this method
 	 */
 	public List<StationNodes> getAdjacentNodes(Map<StationNodes, List<StationNodes>> adjacentNodes,
 			StationType station) {
-		StationNodes stationChecker = new StationNodes(station);
+		StationNodes stationChecker = returnStationFromName(station.getStationName());
+		
 		if (adjacentNodes.get(stationChecker) != null) {
 			return adjacentNodes.get(stationChecker);
 			// System.out.println(stationChecker.getStation().getStationName());

@@ -106,6 +106,13 @@ public class StationLookup implements Controller {
 	@Override
 	public String lookupStation(String station) {
 		station = station.trim().toLowerCase();
+		
+		
+		/*
+		 * List<StationNodes> test = map.getAdjacentNodes(map.getMap(),
+		 * map.returnStationFromName(station).getStation());
+		 * System.out.println(test.toString());
+		 */
 		//check if the station name is "" or null, and if not, return the object details as a formatted string
 		try {
 			if (station != null && !station.replaceAll(" ", "").equals("")) {
