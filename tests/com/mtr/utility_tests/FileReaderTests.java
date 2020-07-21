@@ -6,8 +6,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
 import com.mtr.utilities.FileReaderClass;

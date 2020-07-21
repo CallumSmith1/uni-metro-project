@@ -78,65 +78,65 @@ public class RailMapGraph {
 	 * This method takes two station objects (vertexes) and connects them on the
 	 * graph
 	 */
-	public void addStationConnection(StationType station1, StationType station2) {
+	public void addStationConnection(StationType lastStation, StationType newStation) {
 
-		StationNodes edgeA = new StationNodes(station1);
-		StationNodes edgeB = new StationNodes(station2);
+		StationNodes edgeA = returnStationFromName(lastStation.getStationName());
+		StationNodes edgeB = returnStationFromName(newStation.getStationName());
 
 		if (adjacentNodes.get(edgeA) != null) {
 			adjacentNodes.get(edgeA).add(edgeB);
-			// System.out.println(edgeA.getStation().getStationName() + " is connected to "
-			// + edgeB.getStation().getStationName());
+			/*
+			 * System.out.println(edgeA.getStation().getStationName() + " is connected to "
+			 * + edgeB.getStation().getStationName());
+			 */
 		}
 		if (adjacentNodes.get(edgeB) != null) {
 			adjacentNodes.get(edgeB).add(edgeA);
-			// System.out.println(edgeB.getStation().getStationName() + " is connected to "
-			// + edgeA.getStation().getStationName());
+			/*
+			 * System.out.println(edgeB.getStation().getStationName() + " is connected to "
+			 * + edgeA.getStation().getStationName());
+			 */
 		}
 	}
 	
-	public void addExistingStationConnection(StationNodes duplicateStation, StationNodes lastStation) {
+	public void addExistingStationConnection(StationNodes duplicateStation, StationType lastStation) {
+		
+		StationNodes edgeA = new StationNodes(lastStation);
 
 		if (adjacentNodes.get(duplicateStation) != null) {
-			adjacentNodes.get(duplicateStation).add(lastStation);
+			adjacentNodes.get(duplicateStation).add(edgeA);
+			//System.out.println(adjacentNodes.get(duplicateStation));
 			//System.out.println(duplicateStation.getStation().getStationName() + " is now connected to " + lastStation.getStation().getStationName());
 		}
-		if (adjacentNodes.get(lastStation) != null) {
-			adjacentNodes.get(lastStation).add(duplicateStation);
+		if (adjacentNodes.get(edgeA) != null) {
+			adjacentNodes.get(edgeA).add(duplicateStation);
+			//System.out.println(adjacentNodes.get(edgeA));
 			//System.out.println(lastStation.getStation().getStationName() + " is now connected to " + duplicateStation.getStation().getStationName());
 		}
+
 	}
+
 
 	/*
 	 * Return the nodes adjacent to the one that is passed to this method
 	 */
 	public List<StationNodes> getAdjacentNodes(Map<StationNodes, List<StationNodes>> adjacentNodes,
 			StationType station) {
-		StationNodes stationChecker = returnStationFromName(station.getStationName());
-		
-		if (adjacentNodes.get(stationChecker) != null) {
-			return adjacentNodes.get(stationChecker);
-			// System.out.println(stationChecker.getStation().getStationName());
-		}
-		// System.out.println(adjacentNodes.entrySet());
-		// List<StationNodes> test = adjacentNodes.get(stationChecker);
-		// adjacentNodes.entrySet().forEach(e ->
-		// System.out.println(e.getKey().getStation()));
-		return null;
+			return adjacentNodes.get(new StationNodes(station));
 	}
 
 	// Takes a string, the station's name, and returns an object or null if it does
 	// not exist
 	public StationNodes returnStationFromName(String stationName) {
 		return adjacentNodes.entrySet().stream()
-				.filter(a -> a.getKey().getStation().getStationName().equals(stationName)).map(Map.Entry::getKey)
-				.findFirst().orElse(null);
+				.filter(a -> a.getKey().getStation().getStationName().equals(stationName)).map(Map.Entry::getKey).findAny()
+				.orElse(null);
 
 	}
 
 	// For checking if a passed station is already in the graph
+	// Takes a station object and, using a lambda, checks to see if it exists in the key set
 	public boolean checkIfDuplicateStation(StationType station) {
-		// StationNodes stationChecker = new StationNodes(station);
 		String stationName = station.getStationName();
 		// This is checking if the station name already exists in the key set
 		boolean stationExists = adjacentNodes.entrySet().stream()
