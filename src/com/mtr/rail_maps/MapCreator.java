@@ -3,45 +3,41 @@ package com.mtr.rail_maps;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import com.mtr.interfaces.ContainsChecker;
-import com.mtr.stations.PaidArea;
+//import com.mtr.interfaces.ContainsChecker;
+//import com.mtr.stations.PaidArea;
 import com.mtr.stations.StationType;
 import com.mtr.stations.TrainStation;
-import com.mtr.stations.UnpaidArea;
+//import com.mtr.stations.UnpaidArea;
 import com.mtr.utilities.FileReaderClass;
 import com.mtr.utilities.Tokenizer;
 
 //This class does not show very good coupling, but I like to have reusable utility classes 
 //So that they can be re-used elsewhere on other projects
-public class MapCreator implements ContainsChecker {
+public class MapCreator {
 
 	private String mapFileLocation;
-	private boolean added = false;
 
-	private boolean lastStationWasDuplicate = false;
+	private RailMapGraph graph = new RailMapGraph();
 
-	private RailMapGraph graph = new RailMapGraph();;
-
+	/**
+	 * The constructor of this object takes the location of the file that is to be
+	 * turned into a map
+	 * 
+	 * @param mapFileLocation
+	 */
 	public MapCreator(String mapFileLocation) {
 		this.mapFileLocation = mapFileLocation;
 	}
 
-	/*
+	/**
 	 * This method reads the passed file and splits it based on the file. The
 	 * elements are then added to a Doubly linked list (forward and reverse
 	 * traversal over the list. This allows for: station t -> station q, and station
 	 * t -> station v
+	 * 
+	 * This will return a graph of type RailMapGraph
 	 */
 	public RailMapGraph createMap() {
 		try {
@@ -55,6 +51,9 @@ public class MapCreator implements ContainsChecker {
 		return graph;
 	}
 
+	/*
+	 * This returns a copy of the graph created by the createMap() method
+	 */
 	public RailMapGraph getRailMap() {
 		return graph;
 	}
@@ -92,101 +91,81 @@ public class MapCreator implements ContainsChecker {
 		createStations(lineName, stationTokens);
 	}
 
+	/*
+	 * This takes the information from the split stations method and creates
+	 * objects. The objects are then added as vertices and connected with edges in
+	 * the graph.
+	 */
 	private void createStations(String lineName, String[] stationTokens) {
-		//This lets me link the last station to the current one 
+		// This lets me link the last station to the current one
 		StationType lastStation = null;
+		StationType currentStation = null;
 		int numStations = stationTokens.length;
 
-		// This now becomes O(n2) since it is looping within a loop on a different variable (I believe)
+		// This now becomes O(n2) since it is looping within a loop on a different
+		// variable (I believe)
 		for (int i = 0; i < numStations; i++) {
-			StationType stationType;
 			String token = stationTokens[i].trim().toLowerCase();
-			if(checkForDuplicateStation(token))
-			{
-				lastStation = duplicateStation(lineName, lastStation, numStations, i, token);
+			// Check to see if there is already a key for this station
+			if (checkForDuplicateStation(token)) {
+				currentStation = graph.returnStationFromName(token).getStation();
+
+				if (lastStation != null) {
+					graph.addExistingStationConnection(graph.returnStationFromName(currentStation.getStationName()),
+							lastStation);
+
+				}
+				if (i == 0 || i == numStations - 1) {
+					currentStation.setAsTerminus(lineName);
+				}
+				lastStation = currentStation;
 				lastStation.addNewLine(lineName);
+			} else {
+				currentStation = new TrainStation(token, lineName);
+
+				if (i == 0 || i == numStations - 1) {
+					currentStation.setAsTerminus(lineName);
+				}
+
+				graph.addStation(currentStation);
+				if (lastStation != null) {
+					graph.addStationConnection(lastStation, currentStation);
+				}
+				lastStation = currentStation;
 			}
-			else {
-				lastStation = newStation(lineName, lastStation, numStations, i, token);
-			}
 		}
-	}
-
-	private boolean checkForDuplicateStation(String token) {
-		try { 
-		return graph.checkIfDuplicateStation(graph.returnStationFromName(token).getStation()); 
-		} 
-		catch(NullPointerException npe) {}
-		return false;
-	}
-
-	private StationType newStation(String lineName, StationType lastStation, int numStations, int i, String token) {
-		StationType stationType;
-		stationType = buildStationObject(lineName, token);
-		
-		//handleDuplicateStations(stationType, lastStation);
-		if(i == 0 || i == numStations - 1) { 
-			stationType.setAsTerminus(lineName);
-		}
-		if(lastStation != null) { 
-			graph.addStationConnection(lastStation, stationType);
-		}
-		
-		//graph.getAdjacentNodes(stationType);
-		//StationLookup.stationTraversal(graph, stationType);
-		//graph.addStation(stationType);
-		graph.addStation(stationType);
-		graph.getAdjacentNodes(graph.getMap(), stationType);
-		lastStation = stationType;
-		return lastStation;
-	}
-
-	private StationType duplicateStation(String lineName, StationType lastStation, int numStations, int i,
-			String token) {
-		StationType station = graph.returnStationFromName(token).getStation();
-		
-		if(lastStation != null) { 
-		graph.addExistingStationConnection(graph.returnStationFromName(station.getStationName()), graph.returnStationFromName(lastStation.getStationName()));
-		
-		}
-		if(i == 0 || i == numStations - 1) { 
-			station.setAsTerminus(lineName);
-		}
-		lastStation = station;
-		return lastStation;
-	}
-
-	// Creates a station object of either paid area, unpaid area, or generic station
-	private StationType buildStationObject(String lineName, String token) {
-		StationType stationType;
-		if (doesContain(lineName.toLowerCase(), "paid connection")) {
-			stationType = new PaidArea(token, lineName);
-		} else if (doesContain(lineName.toLowerCase(), "unpaid connection")) {
-			stationType = new UnpaidArea(token, lineName);
-		} else {
-			stationType = new PaidArea(token, lineName);
-		}
-		return stationType;
 	}
 
 	/*
-	 * private void handleDuplicateStations(StationType currentStation, StationType
-	 * previousStation) { // if the current graph is a duplicate but the last was
-	 * not, link the last to // the initial instance if
-	 * (graph.checkIfDuplicateStation(currentStation)) {
-	 * graph.addStationConnection(previousStation,
-	 * graph.returnStationFromName(currentStation.getStationName()).getStation());
-	 * added = true; } else { graph.addStation(currentStation); }
-	 * 
-	 * }
+	 * If I can return a key, that means that the station must already have been
+	 * added for another line
 	 */
-
-	@Override
-	public boolean doesContain(String stringToCheck, String valueToCheckFor) {
-		String s = "\\b" + valueToCheckFor + "\\b";
-		Pattern p = Pattern.compile(s);
-		Matcher m = p.matcher(stringToCheck);
-		return m.find();
+	private boolean checkForDuplicateStation(String token) {
+		try {
+			return graph.checkIfDuplicateStation(graph.returnStationFromName(token).getStation());
+		} catch (NullPointerException npe) {
+			return false;
+		}
 	}
+
+	// Creates a station object of either paid area, unpaid area, or generic station
+	// I think that this may become defunct if the objects are created last and
+	// exist
+	// --------------------------------------------------------------------------
+	// This is a relic of the original code, where I would have a way of creating
+	// different station objects based on an abstract class and an interface with a
+	// pattern matcher method
+	/*
+	 * private StationType buildStationObject(String lineName, String token) {
+	 * StationType stationType; if (doesContain(lineName.toLowerCase(),
+	 * "Paid Connection")) { stationType = new PaidArea(token, lineName); } else if
+	 * (doesContain(lineName.toLowerCase(), "Unpaid Connection")) { stationType =
+	 * new UnpaidArea(token, lineName); } else { stationType = new
+	 * TrainStation(token, lineName); } return stationType; }
+	 * 
+	 * @Override public boolean doesContain(String stringToCheck, String
+	 * valueToCheckFor) { String s = "\\b" + valueToCheckFor + "\\b"; Pattern p =
+	 * Pattern.compile(s); Matcher m = p.matcher(stringToCheck); return m.find(); }
+	 */
 
 }

@@ -6,8 +6,6 @@ import com.mtr.rail_maps.StationLookup;
 public class WelcomePage {
 
 	public static void main(String[] args) {
-		UserInfo.resetSeasonTicket();
-		
 		MapCreator createMap = new MapCreator("files/MTR_CitySaverNetwork.csv");
 		createMap.createMap();
 		StationLookup controller = new StationLookup(createMap.getRailMap());
