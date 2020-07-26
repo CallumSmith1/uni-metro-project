@@ -70,7 +70,8 @@ public class RailMapGraph {
 	
 
 	public void addStation(StationType station) {
-		adjacentNodes.putIfAbsent(new StationNodes(station), new ArrayList<>());
+		StationNodes stationToInsert = new StationNodes(station);
+		adjacentNodes.putIfAbsent(stationToInsert, new ArrayList<>());
 		//Maybe add a field to track the number of vertices 
 	}
 
