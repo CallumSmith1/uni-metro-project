@@ -81,7 +81,7 @@ public class StationLookup implements Controller {
 
 	/*
 	 * Drawing this out of the BFS method to make for easier debugging. Having these
-	 * will drag the method over 30 lines
+	 * will drag the method over 30 lines which is not ideal.
 	 */
 	private StationType handleStationCheck(String stationToCheck) {
 		if (stationToCheck == null || stationToCheck.replaceAll(" ", "").equals("")) {
@@ -131,6 +131,7 @@ public class StationLookup implements Controller {
 		 */
 		List<String> fastestPathList = stationTraversal(stationA, stationB);
 		//I am reversing the string because they will be added in the order of last -> first
+		try { 
 		Collections.reverse(fastestPathList);
 		String formattedString = System.lineSeparator() + "The quickest route from " + stationA + " to " + stationB + " is to follow: ";
 		// I am using the if statement because I will return null from null pointers in the BFS
@@ -144,6 +145,11 @@ public class StationLookup implements Controller {
 		}
 
 		return formattedString;
+		}
+		catch(Exception any) { 
+			return "";
+		}
+
 	}
 
 }
